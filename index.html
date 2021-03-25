@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://lib.baomitu.com/echarts/5.0.2/echarts.min.js"></script>
+    <script src="./mock.js"></script>
+    <script src="./demo.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        #main {
+            background-color: #202020;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 11px;
+        }
+
+        #main .topWrap {
+            height: 100px;
+            flex-shrink: 0;
+            margin: 11px;
+            /* background-color: #2C2C2C;
+            border-radius: 8px;
+            display: flex;
+            align-items: center; */
+        }
+
+        #main .topWrap>ul {
+            display: flex;
+            height: 100%;
+            overflow-x: auto;
+            border-radius: 8px;
+            padding: 0;
+        }
+
+        .topWrap li {
+            background-color: #2C2C2C;
+            margin: 0 11px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            width: 530px;
+        }
+
+        .topWrap li.active,
+        .topWrap li.active>div {
+            background-color: #514836;
+        }
+
+        .topWrap li:first-child {
+            margin-left: 0;
+        }
+
+        .topWrap li:last-child {
+            margin-right: 0;
+        }
+
+        .topWrap li>div:first-child {
+            height: 60px;
+            width: 60px;
+            margin: 0 5% 0 3%;
+        }
+
+        .topWrap li>div:first-child>img {
+            height: 100%;
+        }
+
+        .topWrap .info {
+            flex: 1;
+            padding-right: 2%;
+        }
+
+        .topWrap .info>p {
+            margin: 5px 0;
+            display: flex;
+            /* justify-content: space-between; */
+            width: 100%;
+        }
+
+        .topWrap .info>p>span:nth-child(2) {
+            margin: 0 5%;
+        }
+
+        .topWrap .info>p:first-child {
+            font-size: 18px;
+            /* padding: 5px 0; */
+        }
+
+        /* .topWrap .info>p:last-child>span {
+            margin-right: 20px;
+            margin-left: 5px;
+        } */
+
+        #main .middleWrap {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+        }
+
+        #main .bottomWrap {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .middleWrap>div {
+            background-color: #2C2C2C;
+            border-radius: 8px;
+            flex: 1;
+            margin: 11px;
+            padding: 20px;
+        }
+
+        .chartContent {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chartContent>.titleBox {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        p.chunkTitle>span:first-child {
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        .chartContent>.titleBox>.tabList {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .chartContent>.titleBox>.tabList>li {
+            margin: 0 10px;
+            cursor: pointer;
+        }
+
+        .chartContent>div:last-child {
+            height: 100%;
+        }
+
+        .listContent {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .listContent>div {
+            flex: 1;
+        }
+
+        .listContent>div.eventList {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .listContent>.eventList>p {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .listContent>.eventList>ul {
+            overflow-x: hidden;
+            overflow-y: auto;
+            max-height: 100%;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 35px;
+            background-color: #2C2C2C;
+        }
+
+        .listContent>.eventList>ul>li {
+            padding: 1.5% 0;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+        }
+
+        ul::-webkit-scrollbar {
+            width: 0 !important;
+            height: 0;
+        }
+
+        ul {
+            -ms-overflow-style: none;
+        }
+
+        ul {
+            overflow: -moz-scrollbars-none;
+        }
+
+        .listContent>.eventList>ul>li:hover {
+            color: #D3A07A;
+        }
+
+        .listContent>.noticeUser {
+            padding-left: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .listContent>.noticeUser>div {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .listContent>.noticeUser .img {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .listContent>.noticeUser .img>img {
+            width: 100%;
+        }
+
+        .listContent>.noticeUser .userCount {
+            flex-shrink: 0;
+            margin-left: 20px;
+            height: 100%;
+        }
+
+        .noticeUser .userCount>div {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .noticeUser .userCount>div>div {
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .noticeUser .userCount>div>div:nth-child(2) {
+            margin: 10% 0;
+        }
+
+        .noticeUser .userCount>div>div>span {
+            font-size: 36px;
+            margin-right: 5px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .bottomWrap>div {
+            background-color: #2C2C2C;
+            border-radius: 8px;
+            margin: 11px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .bottomWrap>div>div {
+            flex: 1;
+        }
+
+        .bottomWrap>.middleContent>div {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .progressBox {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding-right: 50px;
+        }
+
+        .progressBox>label {
+            flex-shrink: 0;
+            margin-right: 25px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .progressBar {
+            border-radius: 10px;
+            background-color: #D3A07A;
+            height: 22px;
+            /* width: 100%; */
+            position: relative;
+        }
+
+        .progressBox .count {
+            position: absolute;
+            right: -50px;
+            width: 50px;
+            display: inline-block;
+            text-align: left;
+            padding-left: 3px;
+        }
+
+        /* #unMatch {
+            width: 20%;
+        } */
+
+        .info>.weixinName {
+            background-color: transparent;
+            color: #fff;
+            border: none;
+            outline: none;
+        }
+
+        .info>.weixinName>option {
+            background-color: #2C2C2C;
+        }
+
+        ul>li.tabActive,
+        .listContent>.eventList>ul>li.listActive {
+            color: #D3A07A;
+        }
+    </style>
+</head>
+
+<body>
+    <main id="main">
+        <div class="topWrap">
+            <ul>
+                <li class="active">
+                    <div>
+                        <img src="./img/head@2x.png" alt="">
+                    </div>
+                    <div class="info">
+                        <p>微信公众号</p>
+                        <p>
+                            <span>粉丝：123</span>
+                            <span>系统事件类型：123</span>
+                            <span>系统用户：32/123</span>
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="middleWrap">
+            <div class="chartContent">
+                <div class="titleBox">
+                    <p class="chunkTitle"><span>消息</span><span>微信公众号</span></p>
+                    <ul class="tabList">
+                        <li class="tabActive" data-num="1">今日</li>
+                        <li data-num="2">本周</li>
+                        <li data-num="3">本月</li>
+                    </ul>
+                </div>
+                <div id="sysEventChart"></div>
+            </div>
+            <div class="listContent">
+                <div class="eventList">
+                    <p>近8次发生消息</p>
+                    <ul class="eventListContent">
+                        <!-- <li class="listActive">
+                            <span>事件名称</span>
+                            <span>2021-02-24 12:00:00</span>
+                        </li> -->
+                    </ul>
+                </div>
+                <div class="noticeUser">
+                    <p class="chunkTitle"><span>消息接收人</span><span>微信公众号</span></p>
+                    <div>
+                        <div class="img">
+                            <img src="./img/group@2x.png" alt="">
+                        </div>
+                        <div class="userCount">
+                            <div>
+                                <div>
+                                    <p>总数</p>
+                                    <span class="eventUserCount">0</span>人
+                                </div>
+                                <div>
+                                    <p>成功</p>
+                                    <span class="eventUserSucc">0</span>人
+                                </div>
+                                <div>
+                                    <p>失败</p>
+                                    <span class="eventUserFail">0</span>人
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bottomWrap">
+            <div class="leftContent">
+                <p class="chunkTitle"><span>粉丝</span><span>微信公众号</span></p>
+                <div id="weixinUserChart"></div>
+            </div>
+            <div class="middleContent">
+                <p class="chunkTitle"><span>粉丝关联系统用户</span><span>微信公众号</span></p>
+                <div>
+                    <div class="progressBox">
+                        <label for="">已关联</label>
+                        <div class="progressBar" id="relatedFans">
+                            <span class="count">0</span>
+                        </div>
+                    </div>
+                    <div class="progressBox">
+                        <label for="">未关联</label>
+                        <div class="progressBar" id="unrelatedFans">
+                            <span class="count">10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="rightContent">
+                <p class="chunkTitle"><span>系统用户关联粉丝</span><span>微信公众号</span></p>
+                <div id="sysMatchUserChart"></div>
+            </div>
+        </div>
+    </main>
+    <script>
+        let utils = {
+            fomatterLegend: function (e, data) {
+                let total = 0;
+                for (let i = 0; i < data.length; i++) {
+                    total += data[i].value;
+                }
+                for (i = 0; i < data.length; i++) {
+                    if (data[i].name === e) {
+                        let ePercent =
+                            (
+                                (data[i].value / total) *
+                                100
+                            ).toFixed(0) + "%";
+                        return (
+                            e +
+                            "   " + " |  " + ePercent + "      " +
+                            data[i].value
+                        );
+                    }
+                }
+            },
+            ajax: function (options) {
+                let xhr = new XMLHttpRequest();
+                let RequestHead = {
+                    AppSid: 'WXMP',
+                    AppModule: 'WXMPWeb',
+                    EventSid: Math.random().toString(),
+                    EventType: options.methodName || '',
+                    RequestTime: this.getDateTime()
+                }, parmas = encodeURIComponent(JSON.stringify({ RequestHead, RequestBody: options.data || {} }));
+                xhr.open(options.type || 'POST', options.url || 'http://172.24.61.114/WXMP/UI/DataServices/DataServices.asmx/GetWebAppServiceDataForXml', true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhr.send('JsonPara=' + parmas);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4) {
+                        if (xhr.status == 200) {
+                            let text = xhr.responseText,
+                                data = { ResponseBody: { OperCode, OperMsg, ResultData } } = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
+                            if (OperCode == 0 && OperMsg == 'ok') {
+                                options.success(JSON.parse(ResultData))
+                            } else {
+                                console.log(data);
+                            }
+                        } else {
+                            options.fail ? options.fail(xhr) : console.log(xhr);
+                        }
+                    }
+                }
+            },
+            addZero: function (val) {
+                if (val < 10) {
+                    return '0' + val
+                } else {
+                    return val
+                }
+            },
+            getDateTime: function () {
+                let myDate = new Date(),
+                    nowDate = myDate.getFullYear() + "-" + this.addZero((myDate.getMonth() + 1)) + "-" + this.addZero(myDate.getDate()),
+                    nowTime = this.addZero(myDate.getHours()) + ':' + this.addZero(myDate.getMinutes()) + ':' + this.addZero(myDate.getSeconds());
+                return nowDate + ' ' + nowTime
+            },
+            getDateInterval: function (dateInterval) {
+                let curDate = new Date(),
+                    curDayOfWeek = curDate.getDay(),
+                    curDay = curDate.getDate(),
+                    curMonth = curDate.getMonth(),
+                    curYear = curDate.getFullYear(),
+                    curHour = curDate.getHours(),
+                    curMin = curDate.getMinutes(),
+                    cursec = curDate.getSeconds(),
+                    curFomatDate = `${curYear}-${this.addZero(curMonth + 1)}-`,
+                    curTime = ` ${this.addZero(curHour)}:${this.addZero(curMin)}:${this.addZero(cursec)}`;
+                if (dateInterval === '1') {
+                    return [curFomatDate + `${this.addZero(curDay)} 00:00:00`, curFomatDate + `${this.addZero(curDay)}${curTime}`]
+                } else if (dateInterval === '2') {
+                    curDate.setDate(curDay - curDayOfWeek + 1);
+                    return [`${curDate.getFullYear()}-${this.addZero(curDate.getMonth() + 1)}-${this.addZero(curDate.getDate())} 00:00:00`, curFomatDate + `${this.addZero(curDay)}${curTime}`]
+                } else if (dateInterval === '3') {
+                    return [curFomatDate + '01 00:00:00', curFomatDate + `${this.addZero(curDay)}${curTime}`]
+                }
+            }
+        }
+        let sysEventChartObj = {
+            sysEventChart: echarts.init(document.getElementById('sysEventChart')),
+            setOption: function (xAxisData, data) {
+                this.sysEventChart.setOption({
+                    grid: {
+                        left: "0",
+                        right: "2%",
+                        top: "13%",
+                        bottom: "2%",
+                        containLabel: true,
+                    },
+                    xAxis: {
+                        data: xAxisData || [],
+                        axisLine: {
+                            lineStyle: {
+                                color: '#4F4F4F'
+                            }
+                        },
+                        axisLabel: {
+                            color: 'rgba(255, 255, 255, 0.5)'
+                        },
+                        axisTick: {
+                            show: false
+                        }
+                    },
+                    yAxis: {
+                        name: '发生次数',
+                        nameTextStyle: {
+                            color: 'rgba(255, 255, 255, 0.5)'
+                        },
+                        axisLabel: {
+                            color: 'rgba(255, 255, 255, 0.5)'
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                color: '#4F4F4F'
+                            }
+                        }
+                    },
+                    color: ["#D3A07A"],
+                    series: [{
+                        name: '次数',
+                        type: 'bar',
+                        barWidth: 18,
+                        label: {
+                            show: true,
+                            position: 'top',
+                            color: 'rgba(255, 255, 255, 0.5)'
+                        },
+                        itemStyle: { barBorderRadius: 15 },
+                        data: data || [],
+                        selectedMode: 'single',
+                        select: {
+                            itemStyle: {
+                                color: '#EE8A40'
+                            }
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                color: '#EE8A40'
+                            }
+                        }
+                    }]
+                });
+                // this.sysEventChart.dispatchAction({
+                //     type: 'select',
+                //     dataIndex: 0,
+                // })
+            }
+        }
+        let weixinUserChartObj = {
+            weixinUserChart: echarts.init(document.getElementById('weixinUserChart')),
+            chartData: [],
+            setOption: function (data) {
+                if (data) {
+                    this.chartData = data
+                }
+                this.weixinUserChart.setOption({
+                    grid: {
+                        left: "0",
+                        right: "2%",
+                        top: "13%",
+                        bottom: "2%",
+                        containLabel: true,
+                    },
+                    legend: {
+                        textStyle: {
+                            color: 'rgba(255, 255, 255, 0.75)'
+                        },
+                        right: "0",
+                        top: "40%",
+                        itemGap: 25,
+                        orient: "vertical",
+                        formatter: function (e) {
+                            return utils.fomatterLegend(e, this.chartData)
+                        }.bind(this),
+                    },
+                    color: ["#44D09C", "#A01EAF"],
+                    series: [
+                        {
+                            name: '微信用户',
+                            type: 'pie',
+                            label: {
+                                show: false
+                            },
+                            center: ["30%", "50%"],
+                            radius: ['60%', '78%'],
+                            avoidLabelOverlap: false,
+                            labelLine: {
+                                show: false
+                            },
+                            selectedMode: 'single',
+                            itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 3
+                            },
+                            select: {
+                                itemStyle: {
+                                    borderWidth: 0
+                                }
+                            },
+                            data: this.chartData
+                        }
+                    ]
+                });
+                this.weixinUserChart.dispatchAction({
+                    type: 'select',
+                    dataIndex: 1,
+                })
+            }
+        }
+        let sysMatchUserChartObj = {
+            sysMatchUserChart: echarts.init(document.getElementById('sysMatchUserChart')),
+            chartData: [],
+            setOption: function (data) {
+                if (data) {
+                    this.chartData = data
+                }
+                this.sysMatchUserChart.setOption({
+                    grid: {
+                        left: "0",
+                        right: "2%",
+                        top: "13%",
+                        bottom: "2%",
+                        containLabel: true,
+                    },
+                    legend: {
+                        textStyle: {
+                            color: 'rgba(255, 255, 255, 0.75)'
+                        },
+                        right: "0",
+                        top: "40%",
+                        itemGap: 25,
+                        orient: "vertical",
+                        formatter: function (e) {
+                            return utils.fomatterLegend(e, this.chartData)
+                        }.bind(this),
+                    },
+                    color: ["#D3A07A", "#646464"],
+                    series: [
+                        {
+                            name: '微信用户',
+                            type: 'pie',
+                            label: {
+                                show: false
+                            },
+                            center: ["30%", "50%"],
+                            radius: ['60%', '78%'],
+                            avoidLabelOverlap: false,
+                            labelLine: {
+                                show: false
+                            },
+                            selectedMode: 'single',
+                            itemStyle: {
+                                borderColor: '#fff',
+                                borderWidth: 3
+                            },
+                            select: {
+                                itemStyle: {
+                                    borderWidth: 0
+                                }
+                            },
+                            data: this.chartData
+                        }
+                    ]
+                })
+                this.sysMatchUserChart.dispatchAction({
+                    type: 'select',
+                    dataIndex: 1,
+                })
+            }
+        }
+        sysEventChartObj.setOption();
+        weixinUserChartObj.setOption();
+        sysMatchUserChartObj.setOption();
+        let topWrapWidth = 0, liWidth = 0, baseDataCount = 0, carouselCount = 0, setTimer = null, carouselTime = 5000;
+        window.onresize = function () {
+            carouselContent()
+            sysEventChartObj.sysEventChart.resize();
+            weixinUserChartObj.weixinUserChart.resize();
+            sysMatchUserChartObj.sysMatchUserChart.resize();
+        }
+        document.querySelector('.topWrap>ul').addEventListener('mousewheel', function (e) {
+            let detail = e.wheelDelta,
+                moveForwardStep = 1,
+                moveBackStep = -1,
+                step = 0;
+            step = detail > 0 ? moveBackStep * (liWidth + 11 + 11) : moveForwardStep * (liWidth + 11 + 11);
+            document.querySelector('.topWrap>ul').scrollLeft += step;
+        }, false)
+        function carouselContent() {
+            let liMinWidth = 530;
+            topWrapWidth = document.querySelector('.topWrap').offsetWidth;
+            let num = Math.round(topWrapWidth / liMinWidth);
+            carouselCount = num > baseDataCount ? baseDataCount : num;
+            liWidth = (topWrapWidth - ((carouselCount - 2) * 2 * 11 + 22)) / carouselCount;
+            document.querySelectorAll('.topWrap li').forEach(v => v.style.width = liWidth + 'px');
+            if (carouselCount === 1) {
+                document.querySelector('.topWrap li>div:first-child').style.cssText = 'margin: 0 25px 0 15px;'
+            }
+        }
+        getBaseInfoData();
+        function getBaseInfoData() {
+            utils.ajax({
+                methodName: 'GetWeChatStatisticsData',
+                success: function (data) {
+                    baseDataCount = data.length;
+                    changeBaseInfo(data)
+                }
+            })
+        }
+        function changeBaseInfo(data) {
+            let liHtml = '', index = 0, dateInterval = '1';
+            data.forEach((v, i) => {
+                let { BlackUser, WhiteUser } = v.WechatUserTypeInfo;
+                let { RelatedUserCount, TotalRelationUserCount } = v.WechatUserRelationInfo;
+                liHtml += `<li data-index="${i}" class="${i === 0 ? 'active' : ''}">
+                    <div>
+                        <img src="${v.WechatHeadImgUrl}" alt="">
+                    </div>
+                    <div class="info">
+                        <p>${v.WechatName}</p>
+                        <p>
+                            <span>粉丝：${BlackUser + WhiteUser}</span>
+                            <span>消息类型：${v.WechatEventTypeInfo.WechatEventTypeCount}</span>
+                            <span>系统用户：${RelatedUserCount}/${TotalRelationUserCount}</span>
+                        </p>
+                    </div>
+                </li>`
+            })
+            toggleInfo(data, index);
+            getEventList(data, index);
+            getEventStatis(data, index, dateInterval);
+            fansSysUserStatic(data, index);
+            document.querySelector('.topWrap>ul').innerHTML = liHtml;
+            document.querySelector('.topWrap>ul').addEventListener('click', function (e) {
+                clearInterval(setTimer);
+                setTimer = null;
+                let el = e.target;
+                while (el.tagName.toUpperCase() !== 'LI' && el.tagName.toUpperCase() !== this.tagName.toUpperCase()) {
+                    el = el.parentNode;
+                    if (el.tagName.toUpperCase() === 'LI') {
+                        break
+                    }
+                }
+                let hasClass = el.classList.contains('active');
+                if (!hasClass) {
+                    [...this.children].forEach(v => v.classList.remove('active'));
+                    el.classList.add('active');
+                    index = el.getAttribute('data-index');
+                    toggleInfo(data, index);
+                    getEventList(data, index);
+                    getEventStatis(data, index, dateInterval);
+                    fansSysUserStatic(data, index);
+                }
+                carouselToggle(data, index, dateInterval);
+            }, false)
+            document.querySelector('.tabList').addEventListener('click', function (e) {
+                let hasClass = e.target.classList.contains('tabActive');
+                if (!hasClass && e.target.nodeName !== this.nodeName) {
+                    [...this.children].forEach(v => v.classList.remove('tabActive'));
+                    e.target.classList.add('tabActive');
+                    dateInterval = e.target.getAttribute('data-num');
+                    getEventStatis(data, index, dateInterval);
+                }
+            }, false);
+            document.querySelector('.eventListContent').addEventListener('click', function (e) {
+                let el = e.target.nodeName.toUpperCase() !== 'LI' ? e.target.parentNode : e.target;
+                let hasClass = el.classList.contains('listActive');
+                if (!hasClass && e.target.nodeName !== this.nodeName) {
+                    [...this.children].forEach(v => v.classList.remove('listActive'));
+                    el.classList.add('listActive');
+                    let numInfoStr = el.getAttribute('data-info');
+                    let { Success, Fail } = JSON.parse(numInfoStr)
+                    document.querySelector('.eventUserCount').innerText = Success + Fail
+                    document.querySelector('.eventUserSucc').innerText = Success
+                    document.querySelector('.eventUserFail').innerText = Fail
+                }
+            }, false);
+            carouselContent();
+            carouselToggle(data, index, dateInterval);
+        }
+        function carouselToggle(data, index, dateInterval) {
+            setTimer = setInterval(() => {
+                if (data.length <= 1) {
+                    return
+                }
+                dateInterval = document.querySelector('.tabList>.tabActive').getAttribute('data-num');
+                index >= data.length - 1 ? index = 0 : index++;
+                if (index >= carouselCount) {
+                    document.querySelector('.topWrap>ul').scrollLeft = (index + 1 - carouselCount) * (liWidth + 11 + 11);
+                }
+                if (index === 0) {
+                    document.querySelector('.topWrap>ul').scrollLeft = 0;
+                }
+                document.querySelectorAll('.topWrap>ul>li').forEach((v, i) => {
+                    v.classList.remove('active')
+                    if (i === index) {
+                        v.classList.add('active')
+                    }
+                });
+                toggleInfo(data, index);
+                getEventList(data, index);
+                getEventStatis(data, index, dateInterval);
+                fansSysUserStatic(data, index);
+            }, carouselTime);
+        };
+        function toggleInfo(data, index) {
+            let { RelatedUserCount, TotalRelationUserCount } = data[index].WechatUserRelationInfo;
+            let { BlackUser, WhiteUser } = data[index].WechatUserTypeInfo;
+            let sysUnmatch = TotalRelationUserCount - RelatedUserCount;
+            document.querySelectorAll('.chunkTitle>span:last-child').forEach(v => v.innerText = data[index].WechatName)
+            let userChartData = [
+                { value: WhiteUser, name: '白用户' },
+                { value: BlackUser, name: '黑用户' }
+            ]
+            let sysMatchUserChartData = [
+                { value: RelatedUserCount, name: '已关联' },
+                { value: sysUnmatch, name: '未关联' }
+            ]
+            userChartData.map(v => {
+                if (!v.value) {
+                    v.itemStyle = { borderWidth: 0 }
+                }
+            })
+            sysMatchUserChartData.map(v => {
+                if (!v.value) {
+                    v.itemStyle = { borderWidth: 0 }
+                }
+            })
+            weixinUserChartObj.setOption(userChartData)
+            sysMatchUserChartObj.setOption(sysMatchUserChartData)
+        }
+        function getEventList(data, index) {
+            utils.ajax({
+                methodName: 'GetWeChatLastSendRecordData',
+                data: {
+                    WechatAppName: data[index].WechatAppName,
+                    TopN: '8'
+                },
+                success: function (data) {
+                    // console.log(data);
+                    changeEventList(data)
+                }
+            })
+        }
+        function changeEventList(data) {
+            let html = '';
+            if (data.length <= 0) {
+                document.querySelectorAll('.userCount div>span').forEach(v => v.innerText = 0)
+            }
+            data.forEach((v, i) => {
+                if (i === 0) {
+                    document.querySelector('.eventUserCount').innerText = v.WechatMsgSendStatusInfo.Success + v.WechatMsgSendStatusInfo.Fail
+                    document.querySelector('.eventUserSucc').innerText = v.WechatMsgSendStatusInfo.Success
+                    document.querySelector('.eventUserFail').innerText = v.WechatMsgSendStatusInfo.Fail
+                }
+                html += `<li class="${i === 0 ? 'listActive' : ''}" data-num="${v.WechatMsgRecordNum}" data-info='${JSON.stringify(v.WechatMsgSendStatusInfo)}'>
+                            <span>${v.WechatEventTypeName}</span>
+                            <span>${v.WechatMsgRecordTime}</span>
+                        </li>`
+            })
+            document.querySelector('.eventListContent').innerHTML = html
+        }
+        function getEventStatis(data, index, dateInterval) {
+            let dateTimeArr = utils.getDateInterval(dateInterval);
+            utils.ajax({
+                methodName: 'GetWeChatEventTypeStatisticsData',
+                data: {
+                    WechatAppName: data[index].WechatAppName,
+                    StartTime: dateTimeArr[0],
+                    EndTime: dateTimeArr[1]
+                },
+                success: function (data) {
+                    // console.log(data);
+                    let xAxisData = [];
+                    data.map(v => {
+                        xAxisData.push(v.WechatEventTypeName)
+                        v.name = v.WechatEventTypeName
+                        v.value = v.WhecatEventTypeMsgCount
+                    })
+                    sysEventChartObj.setOption(xAxisData, data)
+                }
+            })
+        }
+        function fansSysUserStatic(data, index) {
+            let { BlackUser, WhiteUser } = data[index].WechatUserTypeInfo,
+                totalFans = BlackUser + WhiteUser,
+                relatedUserCount = data[index].WechatUserRelationInfo.RelatedUserCount,
+                unrelatedUserCount = totalFans - relatedUserCount,
+                relatedUserCountRatio = relatedUserCount / totalFans * 100,
+                unrelatedUserCountRatio = unrelatedUserCount / totalFans * 100,
+                countArr = [relatedUserCount, unrelatedUserCount];
+            document.getElementById('relatedFans').style.width = relatedUserCountRatio + '%'
+            document.getElementById('unrelatedFans').style.width = unrelatedUserCountRatio + '%';
+            document.querySelectorAll('.progressBox .count').forEach((v, i) => v.innerText = countArr[i])
+        }
+    </script>
+</body>
+
+</html>
